@@ -1,0 +1,447 @@
+Program.Sub.ScreenSU.Start
+Gui.SS_Form1..Create
+Gui.SS_Form1..Caption("ACH Bank Information")
+Gui.SS_Form1..Size(2250,2955)
+Gui.SS_Form1..Position(0,0)
+Gui.SS_Form1..AlwaysOnTop(False)
+Gui.SS_Form1..FontName("Arial")
+Gui.SS_Form1..FontSize(8)
+Gui.SS_Form1..ForeColor(0)
+Gui.SS_Form1..Backcolor(-2147483633)
+Gui.SS_Form1..ControlBox(True)
+Gui.SS_Form1..MaxButton(False)
+Gui.SS_Form1..MinButton(False)
+Gui.SS_Form1..MousePointer(0)
+Gui.SS_Form1..Moveable(True)
+Gui.SS_Form1..Sizeable(False)
+Gui.SS_Form1..ShowInTaskBar(True)
+Gui.SS_Form1..TitleBar(True)
+Gui.SS_Form1..Event(unload,ss_form1_unload)
+Gui.SS_Form1.lbl_txtBIC.Create(label)
+Gui.SS_Form1.lbl_txtBIC.Caption("BIC")
+Gui.SS_Form1.lbl_txtBIC.Visible(True)
+Gui.SS_Form1.lbl_txtBIC.Size(1800,200)
+Gui.SS_Form1.lbl_txtBIC.Zorder(1)
+Gui.SS_Form1.lbl_txtBIC.Position(100,135)
+Gui.SS_Form1.lbl_txtBIC.Enabled(True)
+Gui.SS_Form1.lbl_txtBIC.Alignment(0)
+Gui.SS_Form1.lbl_txtBIC.FontName("Arial")
+Gui.SS_Form1.lbl_txtBIC.FontSize(8)
+Gui.SS_Form1.lbl_txtBIC.Backcolor(-2147483633)
+Gui.SS_Form1.lbl_txtBIC.BackStyle(0)
+Gui.SS_Form1.lbl_txtBIC.Tooltip("")
+Gui.SS_Form1.lbl_txtBIC.ControlGroup(0)
+Gui.SS_Form1.txtBIC.Create(textbox)
+Gui.SS_Form1.txtBIC.Text("")
+Gui.SS_Form1.txtBIC.Visible(True)
+Gui.SS_Form1.txtBIC.Size(1800,330)
+Gui.SS_Form1.txtBIC.Zorder(1)
+Gui.SS_Form1.txtBIC.Position(100,335)
+Gui.SS_Form1.txtBIC.Enabled(True)
+Gui.SS_Form1.txtBIC.Alignment(0)
+Gui.SS_Form1.txtBIC.FontName("Arial")
+Gui.SS_Form1.txtBIC.FontSize(8)
+Gui.SS_Form1.txtBIC.Backcolor(16777215)
+Gui.SS_Form1.txtBIC.BorderStyle(1)
+Gui.SS_Form1.txtBIC.TabStop(True)
+Gui.SS_Form1.txtBIC.TabIndex(1)
+Gui.SS_Form1.txtBIC.Tooltip("")
+Gui.SS_Form1.txtBIC.ControlGroup(0)
+Gui.SS_Form1.txtBIC.DefaultValue("")
+Gui.SS_Form1.lbl_txtIBAN.Create(label)
+Gui.SS_Form1.lbl_txtIBAN.Caption("IBAN")
+Gui.SS_Form1.lbl_txtIBAN.Visible(True)
+Gui.SS_Form1.lbl_txtIBAN.Size(1800,200)
+Gui.SS_Form1.lbl_txtIBAN.Zorder(1)
+Gui.SS_Form1.lbl_txtIBAN.Position(100,750)
+Gui.SS_Form1.lbl_txtIBAN.Enabled(True)
+Gui.SS_Form1.lbl_txtIBAN.Alignment(0)
+Gui.SS_Form1.lbl_txtIBAN.FontName("Arial")
+Gui.SS_Form1.lbl_txtIBAN.FontSize(8)
+Gui.SS_Form1.lbl_txtIBAN.Backcolor(-2147483633)
+Gui.SS_Form1.lbl_txtIBAN.BackStyle(0)
+Gui.SS_Form1.lbl_txtIBAN.Tooltip("")
+Gui.SS_Form1.lbl_txtIBAN.ControlGroup(0)
+Gui.SS_Form1.txtIBAN.Create(textbox)
+Gui.SS_Form1.txtIBAN.Text("")
+Gui.SS_Form1.txtIBAN.Visible(True)
+Gui.SS_Form1.txtIBAN.Size(1800,330)
+Gui.SS_Form1.txtIBAN.Zorder(1)
+Gui.SS_Form1.txtIBAN.Position(100,950)
+Gui.SS_Form1.txtIBAN.Enabled(True)
+Gui.SS_Form1.txtIBAN.Alignment(0)
+Gui.SS_Form1.txtIBAN.FontName("Arial")
+Gui.SS_Form1.txtIBAN.FontSize(8)
+Gui.SS_Form1.txtIBAN.Backcolor(16777215)
+Gui.SS_Form1.txtIBAN.BorderStyle(1)
+Gui.SS_Form1.txtIBAN.TabStop(True)
+Gui.SS_Form1.txtIBAN.TabIndex(2)
+Gui.SS_Form1.txtIBAN.Tooltip("")
+Gui.SS_Form1.txtIBAN.ControlGroup(0)
+Gui.SS_Form1.txtIBAN.DefaultValue("")
+Gui.SS_Form1.lbl_txtOIN.Create(label)
+Gui.SS_Form1.lbl_txtOIN.Caption("OIN")
+Gui.SS_Form1.lbl_txtOIN.Visible(True)
+Gui.SS_Form1.lbl_txtOIN.Size(1800,200)
+Gui.SS_Form1.lbl_txtOIN.Zorder(1)
+Gui.SS_Form1.lbl_txtOIN.Position(100,1365)
+Gui.SS_Form1.lbl_txtOIN.Enabled(True)
+Gui.SS_Form1.lbl_txtOIN.Alignment(0)
+Gui.SS_Form1.lbl_txtOIN.FontName("Arial")
+Gui.SS_Form1.lbl_txtOIN.FontSize(8)
+Gui.SS_Form1.lbl_txtOIN.Backcolor(-2147483633)
+Gui.SS_Form1.lbl_txtOIN.BackStyle(0)
+Gui.SS_Form1.lbl_txtOIN.Tooltip("")
+Gui.SS_Form1.lbl_txtOIN.ControlGroup(0)
+Gui.SS_Form1.txtOIN.Create(textbox)
+Gui.SS_Form1.txtOIN.Text("")
+Gui.SS_Form1.txtOIN.Visible(True)
+Gui.SS_Form1.txtOIN.Size(1800,330)
+Gui.SS_Form1.txtOIN.Zorder(1)
+Gui.SS_Form1.txtOIN.Position(100,1565)
+Gui.SS_Form1.txtOIN.Enabled(True)
+Gui.SS_Form1.txtOIN.Alignment(0)
+Gui.SS_Form1.txtOIN.FontName("Arial")
+Gui.SS_Form1.txtOIN.FontSize(8)
+Gui.SS_Form1.txtOIN.Backcolor(16777215)
+Gui.SS_Form1.txtOIN.BorderStyle(1)
+Gui.SS_Form1.txtOIN.TabStop(True)
+Gui.SS_Form1.txtOIN.TabIndex(3)
+Gui.SS_Form1.txtOIN.Tooltip("")
+Gui.SS_Form1.txtOIN.ControlGroup(0)
+Gui.SS_Form1.txtOIN.DefaultValue("")
+Gui.SS_Form1.cmdSave.Create(button)
+Gui.SS_Form1.cmdSave.Caption("Save")
+Gui.SS_Form1.cmdSave.Visible(True)
+Gui.SS_Form1.cmdSave.Size(1000,360)
+Gui.SS_Form1.cmdSave.Zorder(0)
+Gui.SS_Form1.cmdSave.Position(100,1980)
+Gui.SS_Form1.cmdSave.Enabled(True)
+Gui.SS_Form1.cmdSave.FontName("Arial")
+Gui.SS_Form1.cmdSave.FontSize(8)
+Gui.SS_Form1.cmdSave.TabStop(True)
+Gui.SS_Form1.cmdSave.TabIndex(4)
+Gui.SS_Form1.cmdSave.Tooltip("")
+Gui.SS_Form1.cmdSave.ControlGroup(0)
+Gui.SS_Form1.cmdSave.DefaultValue("")
+Gui.SS_Form1.cmdSave.Event(click,cmdsave_click)
+gui.SS_Form1.lbl_txtBIC.LabelStretch(True)
+gui.SS_Form1.lbl_txtIBAN.LabelStretch(True)
+gui.SS_Form1.lbl_txtOIN.LabelStretch(True)
+
+
+Gui.SS_Form2..Create
+Gui.SS_Form2..Caption("Vendor Bank Info")
+Gui.SS_Form2..Size(2250,2340)
+Gui.SS_Form2..Position(0,0)
+Gui.SS_Form2..AlwaysOnTop(False)
+Gui.SS_Form2..FontName("Arial")
+Gui.SS_Form2..FontSize(8)
+Gui.SS_Form2..ForeColor(0)
+Gui.SS_Form2..Backcolor(-2147483633)
+Gui.SS_Form2..ControlBox(True)
+Gui.SS_Form2..MaxButton(False)
+Gui.SS_Form2..MinButton(False)
+Gui.SS_Form2..MousePointer(0)
+Gui.SS_Form2..Moveable(True)
+Gui.SS_Form2..Sizeable(False)
+Gui.SS_Form2..ShowInTaskBar(True)
+Gui.SS_Form2..TitleBar(True)
+Gui.SS_Form2..Event(unload,SS_Form2_Unload)
+Gui.SS_Form2.lbl_txtVBIC.Create(label)
+Gui.SS_Form2.lbl_txtVBIC.Caption("BIC")
+Gui.SS_Form2.lbl_txtVBIC.Visible(True)
+Gui.SS_Form2.lbl_txtVBIC.Size(1800,200)
+Gui.SS_Form2.lbl_txtVBIC.Zorder(1)
+Gui.SS_Form2.lbl_txtVBIC.Position(100,135)
+Gui.SS_Form2.lbl_txtVBIC.Enabled(True)
+Gui.SS_Form2.lbl_txtVBIC.Alignment(0)
+Gui.SS_Form2.lbl_txtVBIC.FontName("Arial")
+Gui.SS_Form2.lbl_txtVBIC.FontSize(8)
+Gui.SS_Form2.lbl_txtVBIC.Backcolor(-2147483633)
+Gui.SS_Form2.lbl_txtVBIC.BackStyle(0)
+Gui.SS_Form2.lbl_txtVBIC.Tooltip("")
+Gui.SS_Form2.lbl_txtVBIC.ControlGroup(0)
+Gui.SS_Form2.txtVBIC.Create(textbox)
+Gui.SS_Form2.txtVBIC.Text("")
+Gui.SS_Form2.txtVBIC.Visible(True)
+Gui.SS_Form2.txtVBIC.Size(1800,330)
+Gui.SS_Form2.txtVBIC.Zorder(1)
+Gui.SS_Form2.txtVBIC.Position(100,335)
+Gui.SS_Form2.txtVBIC.Enabled(True)
+Gui.SS_Form2.txtVBIC.Alignment(0)
+Gui.SS_Form2.txtVBIC.FontName("Arial")
+Gui.SS_Form2.txtVBIC.FontSize(8)
+Gui.SS_Form2.txtVBIC.Backcolor(16777215)
+Gui.SS_Form2.txtVBIC.BorderStyle(1)
+Gui.SS_Form2.txtVBIC.TabStop(True)
+Gui.SS_Form2.txtVBIC.TabIndex(1)
+Gui.SS_Form2.txtVBIC.Tooltip("")
+Gui.SS_Form2.txtVBIC.ControlGroup(0)
+Gui.SS_Form2.txtVBIC.DefaultValue("")
+Gui.SS_Form2.lbl_txtVIBAN.Create(label)
+Gui.SS_Form2.lbl_txtVIBAN.Caption("IBAN")
+Gui.SS_Form2.lbl_txtVIBAN.Visible(True)
+Gui.SS_Form2.lbl_txtVIBAN.Size(1800,200)
+Gui.SS_Form2.lbl_txtVIBAN.Zorder(1)
+Gui.SS_Form2.lbl_txtVIBAN.Position(100,750)
+Gui.SS_Form2.lbl_txtVIBAN.Enabled(True)
+Gui.SS_Form2.lbl_txtVIBAN.Alignment(0)
+Gui.SS_Form2.lbl_txtVIBAN.FontName("Arial")
+Gui.SS_Form2.lbl_txtVIBAN.FontSize(8)
+Gui.SS_Form2.lbl_txtVIBAN.Backcolor(-2147483633)
+Gui.SS_Form2.lbl_txtVIBAN.BackStyle(0)
+Gui.SS_Form2.lbl_txtVIBAN.Tooltip("")
+Gui.SS_Form2.lbl_txtVIBAN.ControlGroup(0)
+Gui.SS_Form2.txtVIBAN.Create(textbox)
+Gui.SS_Form2.txtVIBAN.Text("")
+Gui.SS_Form2.txtVIBAN.Visible(True)
+Gui.SS_Form2.txtVIBAN.Size(1800,330)
+Gui.SS_Form2.txtVIBAN.Zorder(1)
+Gui.SS_Form2.txtVIBAN.Position(100,950)
+Gui.SS_Form2.txtVIBAN.Enabled(True)
+Gui.SS_Form2.txtVIBAN.Alignment(0)
+Gui.SS_Form2.txtVIBAN.FontName("Arial")
+Gui.SS_Form2.txtVIBAN.FontSize(8)
+Gui.SS_Form2.txtVIBAN.Backcolor(16777215)
+Gui.SS_Form2.txtVIBAN.BorderStyle(1)
+Gui.SS_Form2.txtVIBAN.TabStop(True)
+Gui.SS_Form2.txtVIBAN.TabIndex(2)
+Gui.SS_Form2.txtVIBAN.Tooltip("")
+Gui.SS_Form2.txtVIBAN.ControlGroup(0)
+Gui.SS_Form2.txtVIBAN.DefaultValue("")
+Gui.SS_Form2.cmdVSave.Create(button)
+Gui.SS_Form2.cmdVSave.Caption("Save")
+Gui.SS_Form2.cmdVSave.Visible(True)
+Gui.SS_Form2.cmdVSave.Size(1000,360)
+Gui.SS_Form2.cmdVSave.Zorder(0)
+Gui.SS_Form2.cmdVSave.Position(100,1365)
+Gui.SS_Form2.cmdVSave.Enabled(True)
+Gui.SS_Form2.cmdVSave.FontName("Arial")
+Gui.SS_Form2.cmdVSave.FontSize(8)
+Gui.SS_Form2.cmdVSave.TabStop(True)
+Gui.SS_Form2.cmdVSave.TabIndex(3)
+Gui.SS_Form2.cmdVSave.Tooltip("")
+Gui.SS_Form2.cmdVSave.ControlGroup(0)
+Gui.SS_Form2.cmdVSave.DefaultValue("")
+Gui.SS_Form2.cmdVSave.Event(click,cmdVSave_Click)
+gui.SS_Form2.lbl_txtVBIC.LabelStretch(True)
+gui.SS_Form2.lbl_txtVIBAN.LabelStretch(True)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sSQL.Declare(String)
+
+'opening connection
+F.ODBC.Connection!Con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+F.Intrinsic.Control.SelectCase(V.Caller.Hook)
+	'Populate hook for Vendors > Open
+	F.Intrinsic.Control.Case(14460)
+		'set script 1 button to ACH
+		V.Passed.000023.Set("ACH")
+		'If ACH button is unlocked then unlock Script 1 and lock ACH
+		F.Intrinsic.Control.If(V.Passed.000034.Locked,=,0)
+'			F.Intrinsic.UI.ChangeCallerProperty(V.Passed.000034,"LOCK",1)
+			F.Intrinsic.UI.ChangeCallerProperty(V.Passed.000023,"LOCK",0)
+		F.Intrinsic.Control.Else
+		'ACH button is locked so lock script 2 button
+			F.Intrinsic.UI.ChangeCallerProperty(V.Passed.000023,"LOCK",1)
+		F.Intrinsic.Control.EndIf
+	'Script 2 button for Vendor > Open
+	F.Intrinsic.Control.Case(14490)
+		F.Intrinsic.Control.If(V.Passed.000002,<>,"")
+			F.Intrinsic.String.Build("SELECT * FROM GCG_3631_VEN_BANK WHERE VENDOR = '{0}' ",V.Passed.000002,V.Local.sSQL)
+			F.ODBC.Connection!Con.OpenLocalRecordsetRO("rst",V.Local.sSQL)
+			'there is already a vendor in the table so display the account information
+			F.Intrinsic.Control.If(V.ODBC.Con!rst.EOF,=,False)
+				Gui.SS_Form2.txtVBIC.Text(V.ODBC.Con!rst.FieldValTrim!BIC)
+				Gui.SS_Form2.txtVIBAN.Text(V.ODBC.Con!rst.FieldValTrim!IBAN)
+			F.Intrinsic.Control.EndIf
+			F.ODBC.Con!rst.Close
+			Gui.SS_Form2..Show
+		F.Intrinsic.Control.Else
+			F.Intrinsic.UI.Msgbox("A valid vendor must be entered.","Invalid Vendor")
+		F.Intrinsic.Control.EndIf
+	'Open form1 to show the bank account maintenance screen
+	F.Intrinsic.Control.CaseElse
+		F.ODBC.Connection!Con.OpenLocalRecordsetRO("rst","SELECT * FROM GCG_3631_ACH_BANK")
+		'if there is already account informatin then add it to the fields on the screen
+		F.Intrinsic.Control.If(V.ODBC.Con!rst.EOF,=,False)
+			Gui.SS_Form1.txtBIC.Text(V.ODBC.Con!rst.FieldValTrim!BIC)
+			Gui.SS_Form1.txtIBAN.Text(V.ODBC.Con!rst.FieldValTrim!IBAN)
+			Gui.SS_Form1.txtOIN.Text(V.ODBC.Con!rst.FieldValTrim!OIN)
+		F.Intrinsic.Control.EndIf
+		F.ODBC.Con!rst.Close
+		Gui.SS_Form1..Show
+F.Intrinsic.Control.EndSelect
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_ACH_Bank_Maintenance.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Ss_form1_unload)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Main.End
+
+Program.Sub.cmdSave_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdSave_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'if all fields are not blank then save the fields to the table.
+F.Intrinsic.Control.If(V.Screen.SS_Form1!txtBIC.Text,<>,"","AND",V.Screen.SS_Form1!txtIBAN.Text,<>,"",V.Screen.SS_Form1!txtOIN.Text,<>,"")
+	F.ODBC.Connection!Con.OpenLocalRecordsetRW("rst","SELECT * FROM GCG_3631_ACH_BANK")
+	F.Intrinsic.Control.If(V.ODBC.Con!rst.EOF,=,TRUE)
+	'if there are no records add a new one
+		F.ODBC.Con!rst.AddNew
+		F.ODBC.Con!rst.Set!BIC(V.Screen.SS_Form1!txtBIC.Text)
+		F.ODBC.Con!rst.Set!IBAN(V.Screen.SS_Form1!txtIBAN.Text)
+		F.ODBC.Con!rst.Set!OIN(V.Screen.SS_Form1!txtOIN.Text)
+	F.Intrinsic.Control.Else
+	'there is a record so just update it
+		F.ODBC.Con!rst.Set!BIC(V.Screen.SS_Form1!txtBIC.Text)
+		F.ODBC.Con!rst.Set!IBAN(V.Screen.SS_Form1!txtIBAN.Text)
+		F.ODBC.Con!rst.Set!OIN(V.Screen.SS_Form1!txtOIN.Text)
+	F.Intrinsic.Control.EndIf
+	'fields have been updated so update and close recordset
+	F.ODBC.Con!rst.Update
+	F.ODBC.Con!rst.Close
+F.Intrinsic.Control.Else
+'not all text boxes are filled in, tell them to fill it in before we can move on.
+	F.Intrinsic.UI.Msgbox("Please fill in each field before saving.")
+	f.Intrinsic.Control.ExitSub
+f.Intrinsic.Control.EndIf
+
+'everything is updated so close the program
+F.Intrinsic.Control.CallSub(ss_form1_unload)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdSave_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_ACH_Bank_Maintenance.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(ss_form1_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdSave_Click.End
+
+Program.Sub.SS_Form1_Unload.Start
+F.Intrinsic.Control.SetErrorHandler("SS_Form1_Unload_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!Con.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("SS_Form1_Unload_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_ACH_Bank_Maintenance.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+Function.Intrinsic.Control.EndIf
+Program.Sub.SS_Form1_Unload.End
+
+Program.Sub.cmdVSave_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdVSave_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sSQL.Declare(STRING)
+
+'if both fields are not blank then add it to the database
+F.Intrinsic.Control.If(V.Screen.SS_Form2!txtVBIC.Text,<>,"","AND",V.Screen.SS_Form2!txtVIBAN.Text,<>,"")
+	F.Intrinsic.String.Build("SELECT * FROM GCG_3631_VEN_BANK WHERE VENDOR = '{0}' ",V.Passed.000002,V.Local.sSQL)
+	F.ODBC.Connection!Con.OpenLocalRecordsetRW("rst",V.Local.sSQL)
+	'if there is not a record then create one
+	F.Intrinsic.Control.If(V.ODBC.Con!rst.EOF,=,TRUE)
+		F.ODBC.Con!rst.AddNew
+		F.ODBC.Con!rst.Set!BIC(V.Screen.SS_Form2!txtVBIC.Text)
+		F.ODBC.Con!rst.Set!IBAN(V.Screen.SS_Form2!txtVIBAN.Text)
+		F.ODBC.Con!rst.Set!VENDOR(V.Passed.000002)
+	'if there is already a record then update it
+	F.Intrinsic.Control.Else
+		F.ODBC.Con!rst.Set!BIC(V.Screen.SS_Form2!txtVBIC.Text)
+		F.ODBC.Con!rst.Set!IBAN(V.Screen.SS_Form2!txtVIBAN.Text)
+	F.Intrinsic.Control.EndIf
+
+	F.ODBC.Con!rst.Update
+	F.ODBC.Con!rst.Close
+
+'both fields are not full tell them
+F.Intrinsic.Control.Else
+	F.Intrinsic.UI.Msgbox("Please fill in both fields")
+	F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.EndIf
+
+'been updated so end program
+F.Intrinsic.Control.CallSub(ss_form2_unload)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdVSave_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_ACH_Bank_Maintenance.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(ss_form2_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdVSave_Click.End
+
+Program.Sub.SS_Form2_Unload.Start
+F.Intrinsic.Control.SetErrorHandler("SS_Form2_Unload_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!Con.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("SS_Form2_Unload_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_ACH_Bank_Maintenance.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+Function.Intrinsic.Control.EndIf
+Program.Sub.SS_Form2_Unload.End
+
+Program.Sub.Comments.Start
+${$0$}$ACH Bank Maintenance$}$Strider$}$1/29/2016 2:34:39 PM
+${$1$}$$}$$}$1$}$14490$}$SCRIPT-2-HOOK$}$2/23/2016 1:12:12 PM$}$(Program: AP0020GI; Screen: APS002A)
+
+${$1$}$$}$$}$0$}$14460$}$POPULATE-HOOK$}$2/23/2016 1:11:32 PM$}$(Program: AP0020GI; Screen: APS002A)
+
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$This program will store the long bank information for eurpopean formatting for ACH to SEPA.
+Program.Sub.Comments.End
+Program.Sub.ScreenSS.Start
+SS_Form1{{CAPTION::ACH Bank Information
+SS_Form1.CTRL{{NAME::txtBIC\\TYPE::2\\CAPTION::BIC\\TABSTOP::1\\GROUP::-1\\BROWSER::0\\SIZE::1
+SS_Form1.CTRL{{NAME::txtIBAN\\TYPE::2\\CAPTION::IBAN\\TABSTOP::2\\GROUP::-1\\BROWSER::0\\SIZE::1
+SS_Form1.CTRL{{NAME::txtOIN\\TYPE::2\\CAPTION::OIN\\TABSTOP::3\\GROUP::-1\\BROWSER::0\\SIZE::1
+SS_Form1.CTRL{{NAME::cmdSave\\TYPE::5\\CAPTION::Save\\TABSTOP::4\\GROUP::-1\\BROWSER::0\\SIZE::1
+
+SS_Form2{{CAPTION::Vendor Bank Info
+SS_Form2.CTRL{{NAME::txtVBIC\\TYPE::2\\CAPTION::BIC\\TABSTOP::1\\GROUP::-1\\BROWSER::0\\SIZE::1
+SS_Form2.CTRL{{NAME::txtVIBAN\\TYPE::2\\CAPTION::IBAN\\TABSTOP::2\\GROUP::-1\\BROWSER::0\\SIZE::1
+SS_Form2.CTRL{{NAME::cmdVSave\\TYPE::5\\CAPTION::Save\\TABSTOP::3\\GROUP::-1\\BROWSER::0\\SIZE::1
+
+Program.Sub.ScreenSS.End
+
