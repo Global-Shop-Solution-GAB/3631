@@ -1,0 +1,711 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Variable.Global.sLines.Declare(String)
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sSQL.Declare(STRING)
+
+F.ODBC.Connection!Con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+'read ACH file
+Function.Intrinsic.Control.CallSub(writexml)
+
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_SEPA_XML.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+Program.Sub.Main.End
+
+Program.Sub.Unload.Start
+F.Intrinsic.Control.SetErrorHandler("Unload_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!Con.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Unload_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_SEPA_XML.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+Program.Sub.Unload.End
+
+Program.Sub.WriteXML.Start
+F.Intrinsic.Control.SetErrorHandler("WriteXML_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+v.Local.sRet.Declare(string)
+v.Local.sLines.Declare(string)
+v.Local.iCount.Declare(long)
+v.Local.sTab.Declare(string)
+v.Local.sValue.Declare(string)
+v.Local.dDate.Declare(date)
+v.Local.dNow.Declare(date)
+v.Local.sDate.Declare(string)
+v.Local.sNow.Declare(string)
+v.Local.iTrans.Declare(long)
+v.Local.sSaveFile.Declare(string)
+v.Local.bExt.Declare(boolean)
+
+'search for the ach file to be made into xml
+Function.Intrinsic.UI.ShowOpenFileDialog("","*.txt",v.Caller.FilesDir,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"***CANCEL***")
+'	open the flie and turn add it to slines
+	f.Intrinsic.File.File2String(v.Local.sRet,v.Local.sLines)
+	f.Intrinsic.String.Split(v.Local.sLines,v.Ambient.NewLine,v.Global.sLines)
+
+	v.Local.dDate.Set(v.Ambient.Date)
+	v.Local.dNow.Set(v.Ambient.Now)
+
+	'create xml document
+	f.Global.XML.CreateDocument("xmlDoc",false,true,false,false)
+	'set root
+	f.Global.XML.SetRoot("xmlDoc","Document")
+	'sets the document attributes
+	f.Global.XML.CreateAttributeNode("xmlDoc","xmlns","urn:iso:std:iso:20022:tech:xsd:pain.001.001.03")
+	f.Global.XML.SetAttributeToRoot("xmlDoc","xmlns")
+	f.Global.XML.DestroyNode("xmlDoc","xmlns")
+
+	f.Global.XML.CreateAttributeNode("xmlDoc","xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance")
+	f.Global.XML.SetAttributeToRoot("xmlDoc","xmlns:xsi")
+	f.Global.XML.DestroyNode("xmlDoc","xmlns:xsi")
+
+
+	'create cstmrcdttrfinitn node
+	f.Global.XML.CreateElementNode("xmlDoc","CstmrCdtTrfInitn","")
+	f.Global.XML.AppendTextNode("xmlDoc","Root",V.Ambient.NewLine)
+	f.Global.XML.AppendNodeToRoot("xmlDoc","CstmrCdtTrfInitn")
+
+	'create grphdr elements
+	f.Intrinsic.Control.CallSub(buildgrphdr,"DATE",V.Local.dDate,"NOW",V.Local.dNow)
+
+	'create PmtInf
+	f.Global.XML.CreateElementNode("xmlDoc","PmtInf","")
+	f.Global.XML.AppendTextNode("xmlDoc","CstmrCdtTrfInitn",V.Ambient.NewLine)
+	f.Global.XML.AppendNode("xmlDoc","CstmrCdtTrfInitn","PmtInf")
+
+	'create batch record
+	f.Intrinsic.Control.CallSub(buildbatch,"DATE",V.Local.dDate,"NOW",V.Local.dNow)
+
+	'create transactions
+	'loop through the ach file
+	f.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	f.Intrinsic.Control.For(V.Local.iCount,V.Global.sLines.LBound,V.Global.sLines.UBound,1)
+		'if the line starts with 8 it is a transaction
+		f.Intrinsic.Control.If(V.Global.sLines(v.Local.iCount).Left1,=,"6")
+			'create CdtTrfTxInf
+			f.Global.XML.CreateElementNode("xmlDoc","CdtTrfTxInf","")
+			f.Global.XML.AppendTextNode("xmlDoc","PmtInf",V.Local.sTab)
+			f.Global.XML.AppendNode("xmlDoc","PmtInf","CdtTrfTxInf")
+			f.Intrinsic.Control.CallSub(buildtransaction,"COUNT",V.Local.iCount)
+			f.Global.XML.AppendTextNode("xmlDoc","CdtTrfTxInf",V.Local.sTab)
+			f.Global.XML.DestroyNode("xmlDoc","CdtTrfTxInf")
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Next(V.Local.iCount)
+
+	'destroy PmtInf
+	f.Global.XML.AppendTextNode("xmlDoc","PmtInf",V.Ambient.NewLine)
+	f.Global.XML.DestroyNode("xmlDoc","PmtInf")
+
+	'destroy CstmrCdtTrfInitn
+	f.Global.XML.AppendTextNode("xmlDoc","CstmrCdtTrfInitn",V.Ambient.NewLine)
+	f.Global.XML.DestroyNode("xmlDoc","CstmrCdtTrfInitn")
+
+	'destroy root/Document
+	f.Global.XML.AppendTextNode("xmlDoc","root",V.Ambient.NewLine)
+	f.Global.XML.DestroyNode("xmlDoc","Document")
+
+	'save document
+	f.Intrinsic.String.Format(v.Local.dDate,"DDMMYYYY",v.Local.sDate)
+	f.Intrinsic.String.Build("{0}\{1}.xml",v.Caller.FilesDir,v.Local.sDate,v.Local.sValue)
+	f.Intrinsic.UI.ShowSaveFileDialog(v.Local.sValue,"*.xml",v.Local.sSaveFile)
+	f.Intrinsic.Control.If(v.Local.sSaveFile,<>,"***CANCEL***")
+		f.Intrinsic.String.Split(v.Local.sSaveFile,"\",v.Local.sSaveFile)
+		v.Local.iCount.Set(v.Local.sSaveFile.UBound)
+		v.Local.sValue.Set(v.Local.sSaveFile(v.Local.iCount))
+		f.Intrinsic.Math.Sub(V.Local.iCount,1,V.Local.iCount)
+		v.Local.sSaveFile.RedimPreserve(0,v.Local.iCount)
+		f.Intrinsic.String.Join(v.Local.sSaveFile,"\",v.Local.sSaveFile)
+		f.Intrinsic.String.IsInString(v.Local.sValue,".",False,v.Local.bExt)
+		f.Intrinsic.Control.If(v.Local.bExt,=,true)
+			f.Intrinsic.String.Split(V.Local.sValue,".",V.Local.sValue)
+			f.Intrinsic.String.Build("{0}.xml",V.Local.sValue(0),V.Local.sValue)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}.xml",V.Local.sValue,V.Local.sValue)
+		f.Intrinsic.Control.EndIf
+		f.Global.XML.SaveDocument("xmlDoc",v.Local.sSaveFile,v.Local.sValue)
+		f.Global.XML.CloseDocument("xmlDoc")
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Control.CallSub(unload)
+	f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.String.Build("{0}\{1}",v.Local.sSaveFile,v.Local.sValue,v.Local.sSaveFile)
+	'replace Id1 in xlm with Id in GrpHdr
+	f.Intrinsic.File.File2String(v.Local.sSaveFile,v.Local.sLines)
+	f.Intrinsic.String.Replace(v.Local.sLines,"Id1","Id",v.Local.sLines)
+	f.Intrinsic.String.Build(" xmlns={0}{0}",V.Ambient.DblQuote,V.Local.sValue)
+	'replace xmlns="" with blank
+	f.Intrinsic.String.Replace(v.Local.sLines,v.Local.sValue,"",v.Local.sLines)
+	'save xml back to same place
+	f.Intrinsic.File.String2File(v.Local.sSaveFile,v.Local.sLines)
+
+	'prompt that file has been saved at location
+	f.Intrinsic.String.Build("Xml has been saved to:{0}{1}",v.Ambient.NewLine,v.Local.sSaveFile,v.Local.sValue)
+	f.Intrinsic.UI.Msgbox(V.Local.sValue,"Complete")
+
+	f.Intrinsic.Control.CallSub(unload)
+
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.CallSub(unload)
+f.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("WriteXML_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_SEPA_XML.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.WriteXML.End
+
+Program.Sub.BuildGrpHdr.Start
+F.Intrinsic.Control.SetErrorHandler("BuildGrpHdr_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+v.Local.sElements.Declare(string)
+v.Local.iCount.Declare(long)
+v.Local.sTab.Declare(string)
+v.Local.sValue.Declare(string)
+v.Local.sDate.Declare(string)
+v.Local.sNow.Declare(string)
+v.Local.iTrans.Declare(long)
+v.Local.fTrans.Declare(float)
+v.Local.sMsg.Declare(string)
+
+f.Intrinsic.String.Split("MsgId*!*CreDtTm*!*NbOfTxs*!*CtrlSum*!*InitgPty*!*Id*!*OrgId*!*Othr*!*Id1","*!*",V.Local.sElements)
+
+f.Intrinsic.String.Concat(V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+
+'create node grphdr
+f.Global.XML.CreateElementNode("xmlDoc","GrpHdr","")
+f.Global.XML.AppendTextNode("xmlDoc","CstmrCdtTrfInitn",V.Ambient.NewLine)
+f.Global.XML.AppendNode("xmlDoc","CstmrCdtTrfInitn","GrpHdr")
+
+'msgid = YYYYmmdd-HHNNSS-FileIDModifier
+f.Intrinsic.Control.For(V.Local.iCount,V.Global.sLines.LBound,V.Global.sLines.UBound,1)
+	f.Intrinsic.Control.If(V.Global.sLines(v.Local.iCount).Left1,=,"1")
+		f.Intrinsic.String.Mid(V.Global.sLines(v.Local.iCount),34,1,V.Local.sValue)
+		f.Intrinsic.Control.ExitFor(V.Local.iCount)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Next(V.Local.iCount)
+f.Intrinsic.String.Format(v.Args.DATE,"YYmmdd",v.Local.sDate)
+f.Intrinsic.String.Format(v.Args.NOW,"HHNNSS",v.Local.sNow)
+f.Intrinsic.String.Build("{0}-{1}-{2}",v.Local.sDate,v.Local.sNow,v.Local.sValue,v.Local.sValue)
+f.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(0),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","GrpHdr")
+
+'creDtTm = YYYY-mm-ddTHH:NN:SS
+f.Intrinsic.String.Format(v.Args.DATE,"YYYY-mm-dd",v.Local.sDate)
+f.Intrinsic.String.Format(v.Args.NOW,"HH:NN:SS",v.Local.sNow)
+f.Intrinsic.String.Build("{0}T{1}",v.Local.sDate,v.Local.sNow,v.Local.sValue)
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(1),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","GrpHdr")
+
+'create NbOfTxs
+f.Intrinsic.Control.For(V.Local.iCount,V.Global.sLines.LBound,V.Global.sLines.UBound,1)
+	f.Intrinsic.Control.If(V.Global.sLines(v.Local.iCount).Left1,=,"9")
+		f.Intrinsic.String.Mid(V.Global.sLines(v.Local.iCount),14,8,V.Local.iTrans)
+		f.Intrinsic.Control.ExitFor(V.Local.iCount)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Next(V.Local.iCount)
+v.Local.sValue.Set(V.Local.iTrans)
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(2),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","GrpHdr")
+
+'create CtrlSum
+f.Intrinsic.Control.For(V.Local.iCount,V.Global.sLines.LBound,V.Global.sLines.UBound,1)
+	f.Intrinsic.Control.If(V.Global.sLines(v.Local.iCount).Left1,=,"9")
+		f.Intrinsic.String.Mid(V.Global.sLines(v.Local.iCount),44,12,V.Local.iTrans)
+		f.Intrinsic.Control.ExitFor(V.Local.iCount)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Next(V.Local.iCount)
+'divide by 100 to get the two deciml places implied on ACH
+f.Intrinsic.Math.Div(V.Local.iTrans,100,V.Local.fTrans)
+v.Local.sValue.Set(V.Local.fTrans)
+f.Intrinsic.String.Format(V.Local.sValue,"#.00",V.Local.sValue)
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(3),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","GrpHdr")
+
+'create InitgPty and its components
+f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(4),"")
+f.Global.XML.AppendTextNode("xmlDoc","GrpHdr",V.Local.sTab)
+f.Global.XML.AppendNode("xmlDoc","GrpHdr",V.Local.sElements(4))
+'don't destory because more need to be added inside of InitgPty group
+	f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(5),"")
+	f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(4),V.Local.sTab)
+	f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(4),V.Local.sElements(5))
+	'don't destory because more need to be added inside of Id
+		f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(6),"")
+		f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+		f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(5),V.Local.sTab)
+		f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(5),V.Local.sElements(6))
+		'don't destory because more need to be added isside of OrgId
+			f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(7),"")
+			f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+			f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(6),V.Local.sTab)
+			f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(6),V.Local.sElements(7))
+			'don't destory because more need to be added inside of Othr
+				F.ODBC.Connection!Con.OpenLocalRecordsetRO("rst","SELECT OIN FROM GCG_3631_ACH_BANK")
+				f.Intrinsic.Control.If(V.ODBC.Con!rst.EOF,=,false)
+					v.Local.sValue.Set(V.ODBC.Con!rst.FieldValTrim!OIN)
+				f.Intrinsic.Control.Else
+					f.ODBC.Con!rst.Close
+					f.Intrinsic.String.Build("Please set up your bank information.(OIN){0}System Support > Administration > ACH Bank Information",V.Ambient.NewLine,V.Local.sMsg)
+					f.Intrinsic.UI.Msgbox(V.Local.sMsg,"Warning")
+					f.Intrinsic.Control.CallSub(unload)
+				f.Intrinsic.Control.EndIf
+				f.ODBC.Con!rst.Close
+				'using Id1 that will be parsed out after creation because I can't use the same element inside of itself.
+				f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(8),V.Local.sValue.Trim)
+				f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+				f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(7),V.Local.sTab)
+				f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(7),V.Local.sElements(8))
+				'destory id1
+				f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(8))
+				f.Intrinsic.String.Build("{0}{1}{1}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+				f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(7),V.Local.sTab)
+			'destory Othr
+			f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(7))
+			f.Intrinsic.String.Build("{0}{1}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+			f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(6),V.Local.sTab)
+		'destory OrgId
+		f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(6))
+		f.Intrinsic.String.Build("{0}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+		f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(5),V.Local.sTab)
+	'destory Id
+	f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(5))
+	f.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(4),V.Local.sTab)
+'destory InitgPty
+f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(4))
+v.Local.sTab.Set(V.Ambient.NewLine)
+f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(3),V.Local.sTab)
+
+'grphdr is finished, add it to cstmrcdttrfinitn
+f.Global.XML.AppendNode("xmlDoc","CstmrCdtTrfInitn","GrpHdr")
+f.Global.XML.AppendTextNode("xmlDoc","GrpHdr",V.Ambient.NewLine)
+f.Global.XML.DestroyNode("xmlDoc","GrpHdr")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("BuildGrpHdr_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_SEPA_XML.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.BuildGrpHdr.End
+
+Program.Sub.CreateNode.Start
+F.Intrinsic.Control.SetErrorHandler("CreateNode_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.Global.XML.CreateElementNode(V.Args.DOC,V.Args.ELEMENT,V.Args.VALUE)
+F.Global.XML.AppendTextNode(V.Args.DOC,V.Args.GROUP,V.Args.TAB)
+F.Global.XML.AppendNode(V.Args.DOC,V.Args.GROUP,V.Args.ELEMENT)
+F.Global.XML.DestroyNode(V.Args.DOC,V.Args.ELEMENT)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("CreateNode_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_SEPA_XML.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.CreateNode.End
+
+Program.Sub.BuildBatch.Start
+F.Intrinsic.Control.SetErrorHandler("BuildBatch_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+v.Local.sDate.Declare(string)
+v.Local.sNow.Declare(string)
+v.Local.sElements.Declare(string)
+v.Local.sValue.Declare(string)
+v.Local.iCount.Declare(long)
+v.Local.sTab.Declare(string)
+v.Local.iTrans.Declare(long)
+v.Local.fTrans.Declare(float)
+v.Local.sMsg.Declare(string)
+
+f.Intrinsic.String.Split("PmtInfId*!*PmtMtd*!*BtchBookg*!*NbOfTxs*!*CtrlSum*!*PmtTpInf*!*SvcLvl*!*Cd*!*LclInstrm*!*Cd*!*ReqdExctnDt*!*Dbtr*!*Nm*!*DbtrAcct*!*Id*!*IBAN*!*Ccy*!*DbtrAgt*!*FinInstnId*!*BIC*!*ChrgBr","*!*",V.Local.sElements)
+f.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+
+'create PmtInf
+f.Intrinsic.String.Format(v.Args.DATE,"YYYYmmdd",v.Local.sDate)
+f.Intrinsic.String.Format(v.Args.NOW,"hhnnss",v.Local.sNow)
+f.Intrinsic.Control.For(V.Local.iCount,V.Global.sLines.LBound,V.Global.sLines.UBound,1)
+	f.Intrinsic.Control.If(V.Global.sLines(v.Local.iCount).Left1,=,"5")
+		f.Intrinsic.String.Mid(V.Global.sLines(v.Local.iCount),88,7,V.Local.sValue)
+		f.Intrinsic.Control.ExitFor(V.Local.iCount)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Next(V.Local.iCount)
+'PmtInfId = YYmmdd-hhnnss-BatchNumber position 88-94 first line starting with 5
+f.Intrinsic.String.Build("{0}-{1}-{2}",v.Local.sDate,v.Local.sNow,v.Local.sValue,v.Local.sValue)
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(0),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","PmtInf")
+
+'create PmtMtd
+v.Local.sValue.Set("TRF")
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(1),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","PmtInf")
+
+'create BtchBookg
+v.Local.sValue.set("true")
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(2),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","PmtInf")
+
+'create NbOfTxs
+f.Intrinsic.Control.For(V.Local.iCount,V.Global.sLines.LBound,V.Global.sLines.UBound,1)
+	f.Intrinsic.Control.If(V.Global.sLines(v.Local.iCount).Left1,=,"9")
+		f.Intrinsic.String.Mid(V.Global.sLines(v.Local.iCount),14,8,V.Local.iTrans)
+		f.Intrinsic.Control.ExitFor(V.Local.iCount)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Next(V.Local.iCount)
+v.Local.sValue.Set(V.Local.iTrans)
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(3),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","PmtInf")
+
+'create CtrlSum
+f.Intrinsic.Control.For(V.Local.iCount,V.Global.sLines.LBound,V.Global.sLines.UBound,1)
+	f.Intrinsic.Control.If(V.Global.sLines(v.Local.iCount).Left1,=,"9")
+		f.Intrinsic.String.Mid(V.Global.sLines(v.Local.iCount),44,12,V.Local.iTrans)
+		f.Intrinsic.Control.ExitFor(V.Local.iCount)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Next(V.Local.iCount)
+'divide by 100 to get the two deciml places implied on ACH
+f.Intrinsic.Math.Div(V.Local.iTrans,100,V.Local.fTrans)
+v.Local.sValue.Set(V.Local.fTrans)
+f.Intrinsic.String.Format(V.Local.sValue,"#.00",V.Local.sValue)
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(4),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","PmtInf")
+
+'create PmtTpInf
+f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(5),"")
+f.Global.XML.AppendTextNode("xmlDoc","PmtInf",V.Local.sTab)
+f.Global.XML.AppendNode("xmlDoc","PmtInf",V.Local.sElements(5))
+
+	'create SvcLvl
+	f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(6),"")
+	f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(5),V.Local.sTab)
+	f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(5),V.Local.sElements(6))
+
+		'create Cd
+		v.Local.sValue.Set("SEPA")
+		f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+		F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(7),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(6))
+
+	'destory SvcLvl
+	f.Intrinsic.String.Build("{0}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(6),V.Local.sTab)
+	f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(6))
+
+	'create LclInstrm
+	f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(8),"")
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(5),V.Local.sTab)
+	f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(5),V.Local.sElements(8))
+
+		'create Cd
+		v.Local.sValue.Set("CORE")
+		f.Intrinsic.String.Build("{0}{1}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+		F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(9),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(8))
+
+	'destroy LclInstrm
+	f.Intrinsic.String.Build("{0}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(8),V.Local.sTab)
+	f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(8))
+
+'destroy PmtTpInf
+f.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(5),V.Local.sTab)
+f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(5))
+
+'create ReqdExctnDt
+f.Intrinsic.String.Format(v.Args.DATE,"YYYY-mm-dd",v.Local.sValue)
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(10),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","PmtInf")
+
+'create Dbtr
+f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(11),"")
+f.Global.XML.AppendTextNode("xmlDoc","PmtInf",V.Local.sTab)
+f.Global.XML.AppendNode("xmlDoc","PmtInf",V.Local.sElements(11))
+	'create Nm
+	v.Local.sValue.Set(v.Ambient.CompanyName)
+	f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(12),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(11))
+'destory Dbtr
+f.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(11),V.Local.sTab)
+f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(11))
+
+'create DbtrAcct
+f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(13),"")
+f.Global.XML.AppendTextNode("xmlDoc","PmtInf",V.Local.sTab)
+f.Global.XML.AppendNode("xmlDoc","PmtInf",V.Local.sElements(13))
+	'create Id
+	f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(14),"")
+	f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(13),V.Local.sTab)
+	f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(13),V.Local.sElements(14))
+		'create IBAN
+		f.ODBC.Connection!Con.OpenLocalRecordsetRO("rstIBAN","SELECT IBAN FROM GCG_3631_ACH_BANK")
+		f.Intrinsic.Control.If(V.ODBC.Con!rstIBAN.EOF,=,false)
+			v.Local.sValue.Set(V.ODBC.Con!rstIBAN.FieldValTrim!IBAN)
+		f.Intrinsic.Control.Else
+			f.ODBC.Con!rstIBAN.Close
+			f.Intrinsic.String.Build("Please set up your bank information.(IBAN){0}System Support > Administration > ACH Bank Information",V.Ambient.NewLine,V.Local.sMsg)
+			f.Intrinsic.UI.Msgbox(V.Local.sMsg,"Warning")
+			f.Intrinsic.Control.CallSub(unload)
+		f.Intrinsic.Control.EndIf
+		f.ODBC.Con!rstIBAN.Close
+		f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+		F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(15),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(14))
+	'destory Id
+	f.Intrinsic.String.Build("{0}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(14),V.Local.sTab)
+	f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(14))
+
+	'create Ccy
+	v.Local.sValue.Set("EUR")
+	F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(16),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(13))
+
+'destory DbtrAcct
+f.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(13),V.Local.sTab)
+f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(13))
+
+'create DbtrAgt
+f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(17),"")
+f.Global.XML.AppendTextNode("xmlDoc","PmtInf",V.Local.sTab)
+f.Global.XML.AppendNode("xmlDoc","PmtInf",V.Local.sElements(17))
+	'create FinInstnId
+	f.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(18),"")
+	f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(17),V.Local.sTab)
+	f.Global.XML.AppendNode("xmlDoc",V.Local.sElements(17),V.Local.sElements(18))
+		'create BIC
+		f.ODBC.Connection!Con.OpenLocalRecordsetRO("rstBIC","SELECT BIC FROM GCG_3631_ACH_BANK")
+		f.Intrinsic.Control.If(V.ODBC.Con!rstBIC.EOF,=,false)
+			v.Local.sValue.Set(V.ODBC.Con!rstBIC.FieldValTrim!BIC)
+		f.Intrinsic.Control.Else
+			f.ODBC.Con!rstIBAN.Close
+			f.Intrinsic.String.Build("Please set up your bank information.(BIC){0}System Support > Administration > ACH Bank Information",V.Ambient.NewLine,V.Local.sMsg)
+			f.Intrinsic.UI.Msgbox(V.Local.sMsg,"Warning")
+			f.Intrinsic.Control.CallSub(unload)
+		f.Intrinsic.Control.EndIf
+		f.ODBC.Con!rstBIC.Close
+		f.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+		F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(19),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(18))
+	'destory FinInstnId
+	f.Intrinsic.String.Build("{0}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(18),V.Local.sTab)
+	f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(18))
+'destory DbtrAgt
+f.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+f.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(17),V.Local.sTab)
+f.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(17))
+
+'create ChrgBr
+v.Local.sValue.set("SLEV")
+F.Intrinsic.Control.CallSub(createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(20),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP","PmtInf")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("BuildBatch_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_SEPA_XML.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.BuildBatch.End
+
+Program.Sub.BuildTransaction.Start
+F.Intrinsic.Control.SetErrorHandler("BuildTransaction_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sElements.Declare(String)
+V.Local.sValue.Declare(String)
+V.Local.iCount.Declare(Long)
+V.Local.sTab.Declare(String)
+V.Local.iTrans.Declare(Long)
+V.Local.fTrans.Declare(Float)
+V.Local.sMsg.Declare(String)
+V.Local.sSQL.Declare(String)
+V.Local.sVendor.Declare(String)
+
+F.Intrinsic.String.Split("PmtId*!*EndToEndId*!*Amt*!*InstdAmt*!*CdtrAgt*!*FinInstnId*!*BIC*!*Cdtr*!*Nm*!*CdtrAcct*!*Id*!*IBAN","*!*",V.Local.sElements)
+F.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Ambient.Tab,V.Local.sTab)
+'create PmtId
+F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(0),"")
+F.Global.XML.AppendTextNode("xmlDoc","CdtTrfTxInf",V.Local.sTab)
+F.Global.XML.AppendNode("xmlDoc","CdtTrfTxInf",V.Local.sElements(0))
+	'create EndToEndId
+	'Updated to read Caragh in EndToEndID 29-09 RDF
+	'f.Intrinsic.String.Mid(v.Global.sLines(v.Args.COUNT),80,15,v.Local.sValue)
+	V.local.sValue.set("CARAGH PRECISION")
+	F.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	F.Intrinsic.Control.CallSub(Createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(1),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(0))
+'destroy PmtId
+F.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(0),V.Local.sTab)
+F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(0))
+
+'create Amt
+F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(2),"")
+F.Global.XML.AppendTextNode("xmlDoc","CdtTrfTxInf",V.Local.sTab)
+F.Global.XML.AppendNode("xmlDoc","CdtTrfTxInf",V.Local.sElements(2))
+	'create InstdAmt
+	F.Intrinsic.String.Mid(V.Global.sLines(V.Args.COUNT),30,10,V.Local.iTrans)
+	F.Intrinsic.Math.Div(V.Local.iTrans,100,V.Local.fTrans)
+	V.Local.sValue.Set(V.Local.fTrans)
+	F.Intrinsic.String.Format(V.Local.sValue,"#.00",V.Local.sValue)
+	F.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(3),V.Local.sValue)
+	F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(2),V.Local.sTab)
+	F.Global.XML.AppendNode("xmlDoc",V.Local.sElements(2),V.Local.sElements(3))
+		'create attribute Ccy
+		F.Intrinsic.String.Mid(V.Global.sLines(v.Args.COUNT),40,6,V.Local.sVendor)
+		F.Intrinsic.String.Build("SELECT CURRENCY FROM V_VENDOR_CURR WHERE VENDOR = '{0}' ",V.Local.sVendor,V.Local.sSQL)
+		F.ODBC.Connection!Con.OpenLocalRecordsetRO("rstCcy",V.Local.sSQL)
+		F.Intrinsic.Control.If(V.ODBC.Con!rstCcy.EOF,=,False)
+			V.Local.sValue.Set(V.ODBC.Con!rstCcy.FieldValTrim!CURRENCY)
+		F.Intrinsic.Control.Else
+			V.Local.sValue.Set("EUR")
+		F.Intrinsic.Control.EndIf
+		F.ODBC.Con!rstCcy.Close
+		F.Global.XML.CreateAttributeNode("xmlDoc","Ccy",V.Local.sValue)
+		F.Global.XML.SetAttributeToNode("xmlDoc",V.Local.sElements(3),"Ccy")
+		F.Global.XML.DestroyNode("xmlDoc","Ccy")
+	'destory InstdAmt
+	F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(3))
+'destory Amt
+F.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(2),V.Local.sTab)
+F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(2))
+
+'create CdtrAgt
+F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(4),"")
+F.Global.XML.AppendTextNode("xmlDoc","CdtTrfTxInf",V.Local.sTab)
+F.Global.XML.AppendNode("xmlDoc","CdtTrfTxInf",V.Local.sElements(4))
+	'create FinInstnId
+	F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(5),"")
+	F.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(4),V.Local.sTab)
+	F.Global.XML.AppendNode("xmlDoc",V.Local.sElements(4),V.Local.sElements(5))
+		'create BIC
+		F.Intrinsic.String.Build("SELECT BIC FROM GCG_3631_VEN_BANK WHERE VENDOR = '{0}' ",V.Local.sVendor,V.Local.sSQL)
+		F.ODBC.Connection!Con.OpenLocalRecordsetRO("rstVBIC",V.Local.sSQL)
+		F.Intrinsic.Control.If(V.ODBC.Con!rstVBIC.EOF,=,False)
+			V.Local.sValue.Set(V.ODBC.Con!rstVBIC.FieldValTrim!BIC)
+		F.Intrinsic.Control.Else
+			F.ODBC.Con!rstVBIC.Close
+			F.Intrinsic.String.Build("Please set up vendor {1}.(BIC){0}Accounts Payable > File > Open > ACH",V.Ambient.NewLine,V.Local.sVendor,V.Local.sMsg)
+			F.Intrinsic.UI.Msgbox(V.Local.sMsg,"Warning")
+			F.Intrinsic.Control.CallSub(Unload)
+		F.Intrinsic.Control.EndIf
+		F.ODBC.Con!rstVBIC.Close
+		F.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+		F.Intrinsic.Control.CallSub(Createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(6),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(5))
+	'destory FinInstnId
+	F.Intrinsic.String.Build("{0}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(5),V.Local.sTab)
+	F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(5))
+'destory CdtrAgt
+F.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(4),V.Local.sTab)
+F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(4))
+
+'create Cdtr
+F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(7),"")
+F.Global.XML.AppendTextNode("xmlDoc","CdtTrfTxInf",V.Local.sTab)
+F.Global.XML.AppendNode("xmlDoc","CdtTrfTxInf",V.Local.sElements(7))
+	'create Nm
+	F.Intrinsic.String.Mid(V.Global.sLines(v.Args.COUNT),55,22,V.Local.sValue)
+	F.Intrinsic.String.Replace(V.Local.sValue,"&","",V.Local.sValue)
+	F.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	F.Intrinsic.Control.CallSub(Createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(8),"VALUE",V.Local.sValue.Trim,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(7))
+
+'destory Cdtr
+F.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(7),V.Local.sTab)
+F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(7))
+
+'create CdtrAcct
+F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(9),"")
+F.Global.XML.AppendTextNode("xmlDoc","CdtTrfTxInf",V.Local.sTab)
+F.Global.XML.AppendNode("xmlDoc","CdtTrfTxInf",V.Local.sElements(9))
+	'create Id
+	F.Global.XML.CreateElementNode("xmlDoc",V.Local.sElements(10),"")
+	F.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+	F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(9),V.Local.sTab)
+	F.Global.XML.AppendNode("xmlDoc",V.Local.sElements(9),V.Local.sElements(10))
+		'create IBAN
+		F.Intrinsic.String.Build("SELECT IBAN FROM GCG_3631_VEN_BANK WHERE VENDOR = '{0}' ",V.Local.sVendor,V.Local.sSQL)
+		F.ODBC.Connection!Con.OpenLocalRecordsetRO("rstVIBAN",V.Local.sSQL)
+		F.Intrinsic.Control.If(V.ODBC.Con!rstVIBAN.EOF,=,False)
+			V.Local.sValue.Set(V.ODBC.Con!rstVIBAN.FieldValTrim!IBAN)
+		F.Intrinsic.Control.Else
+			F.ODBC.Con!rstVIBAN.Close
+			F.Intrinsic.String.Build("Please set up vendor {1}.(IBAN){0}Accounts Payable > File > Open > ACH",V.Ambient.NewLine,V.Local.sVendor,V.Local.sMsg)
+			F.Intrinsic.UI.Msgbox(V.Local.sMsg,"Warning")
+			F.Intrinsic.Control.CallSub(Unload)
+		F.Intrinsic.Control.EndIf
+		F.ODBC.Con!rstVIBAN.Close
+		F.Intrinsic.String.Concat(V.Local.sTab,V.Ambient.Tab,V.Local.sTab)
+		F.Intrinsic.Control.CallSub(Createnode,"DOC","xmlDoc","ELEMENT",V.Local.sElements(11),"VALUE",V.Local.sValue,"TAB",V.Local.sTab,"GROUP",V.Local.sElements(10))
+	'destory Id
+	F.Intrinsic.String.Build("{0}{1}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+	F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(10),V.Local.sTab)
+	F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(10))
+'destroy CdtrAcct
+F.Intrinsic.String.Build("{0}{1}",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sTab)
+F.Global.XML.AppendTextNode("xmlDoc",V.Local.sElements(9),V.Local.sTab)
+F.Global.XML.DestroyNode("xmlDoc",V.Local.sElements(9))
+
+
+
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("BuildTransaction_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3631_SEPA_XML.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.BuildTransaction.End
+
+Program.Sub.Comments.Start
+${$0$}$SEPA XML$}$Strider$}$29/01/2016 2:26:18 p.m.
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 a.m.$}$This GAB Script will convert the ACH Export File to Bankline MTS SEPA Credit Transfer XML File. Custom ACH Bank Transit Number and Bank Account Number entry fields to replace Company Options (Standard). Custom ACH Bank Routing Number and Bank Account Number screen for Vendor Master screen.
+
+Program.Sub.Comments.End
+
